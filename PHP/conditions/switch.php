@@ -35,3 +35,17 @@ switch ($score) {
     default:
         echo "Invalid score";
 }
+
+
+$n = 0;
+
+switch(true){
+    case ($n === 0):
+        echo "$n is zero";
+        break;
+    case ($n % 2 !== 0):
+        echo "$n is odd";
+        break;
+    default:
+    echo "$n is even";
+}
