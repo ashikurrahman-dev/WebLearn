@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p id="greet"></p>
+    <p id="name">Ashikur Rahman</p>
+    <p id="intro"></p>
+    <h1></h1>
+    <h1 id="h01">Old Heading</h1>
+
+    <img id="img" src="https://images.pexels.com/photos/414612/pexels-photo-414612.jpeg?cs=srgb&dl=pexels-souvenirpixels-414612.jpg&fm=jpg" 
+alt="natural" height="160" width="200">
+
+    <h1 id="date"></h1>
+    <script>
+        document.getElementById('greet').innerHTML = "Hello, Everyone!"
+        // document.write('Hi Ashik')
+        // alert('Are you ready?')
+        const element = document.getElementById('name')
+        document.getElementById('intro').innerHTML = 'Hello My name is ' + element.innerHTML
+        document.getElementsByTagName('h1')[0].innerHTML = "This Is Heading"
+        const x = document.getElementById('h01')
+        x.innerHTML = 'New Heading'
+
+        document.getElementById('img').src = "https://st5.depositphotos.com/23188010/77062/i/450/depositphotos_770624600-stock-photo-green-field-morning-render-illustration.jpg"
+        document.getElementById('img').alt = "Tree"
+        document.getElementById('img').height = "200"
+        document.getElementById('img').width = "300"
+
+        document.getElementById('date').innerHTML = "Date: " + Date()
+    </script>
+</body>
+</html>
