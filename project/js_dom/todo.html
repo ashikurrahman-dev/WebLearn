@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+    <div class="max-w-md mx-auto my-8 p-6 bg-white rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold text-center text-blue-500 mb-6">Todo List</h1>
+
+        <div class="flex justify-center space-x-2 mb-6">
+            <button
+                class="filter-btn active px-3 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors data-[active=true]:bg-blue-500 data-[active=true]:text-white data-[active=true]:border-blue-500"
+                data-filter="all" data-active="true">All</button>
+            <button
+                class="filter-btn px-3 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors data-[active=true]:bg-blue-500 data-[active=true]:text-white data-[active=true]:border-blue-500"
+                data-filter="active" data-active="false">Active</button>
+            <button
+                class="filter-btn px-3 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors data-[active=true]:bg-blue-500 data-[active=true]:text-white data-[active=true]:border-blue-500"
+                data-filter="completed" data-active="false">Completed</button>
+        </div>
+
+        <form class="todo-form flex mb-6">
+            <input type="text" id="todo-input" placeholder="Add a new task..."
+                class="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                autofocus>
+            <button type="submit" id="add-button"
+                class="px-4 py-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 transition-colors">
+                Add
+            </button>
+        </form>
+
+        <ul class="todo-list space-y-2" id="todo-list"></ul>
+
+        <div class="empty-state py-6 text-center text-gray-500" id="empty-state">
+            <p>No tasks to show. Add a new task to get started!</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // DOM Elements
+            const todoForm = document.querySelector('.todo-form');
+            const todoInput = document.getElementById('todo-input');
+            const todoList = document.getElementById('todo-list');
+            const emptyState = document.getElementById('empty-state');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+
+            // State
+            let todos = JSON.parse(localStorage.getItem('todos')) || [];
+            let currentFilter = 'all';
+
+            // Functions
+            function saveTodos() {
+                localStorage.setItem('todos', JSON.stringify(todos));
+            }
+
+            function renderTodos() {
+                todoList.innerHTML = '';
+
+                const filteredTodos = filterTodos(todos, currentFilter);
+
+                if (filteredTodos.length === 0) {
+                    emptyState.classList.remove('hidden');
+                } else {
+                    emptyState.classList.add('hidden');
+                }
+
+                filteredTodos.forEach(todo => {
+                    const todoItem = document.createElement('li');
+                    todoItem.classList.add('todo-item', 'flex', 'justify-between', 'items-center', 'p-3', 'bg-gray-50', 'rounded', 'transition-all');
+                    todoItem.classList.add('border-l-4');
+                    todoItem.dataset.id = todo.id;
+
+                    if (todo.completed) {
+                        todoItem.classList.add('border-l-green-500', 'opacity-70');
+                    } else {
+                        todoItem.classList.add('border-l-blue-500');
+                    }
+
+                    if (todo.editing) {
+                        todoItem.classList.add('border-l-yellow-500', 'bg-gray-100');
+                        todoItem.innerHTML = `
+                            <input type="text" class="flex-1 p-2 mr-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" value="${todo.text}">
+                            <div class="flex space-x-2">
+                                <button class="save-btn px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">Save</button>
+                                <button class="cancel-btn px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500 transition-colors">Cancel</button>
+                            </div>
+                        `;
+
+                        const editInput = todoItem.querySelector('input');
+                        const saveBtn = todoItem.querySelector('.save-btn');
+                        const cancelBtn = todoItem.querySelector('.cancel-btn');
+
+                        editInput.focus();
+
+                        saveBtn.addEventListener('click', () => {
+                            const newText = editInput.value.trim();
+                            if (newText) {
+                                updateTodo(todo.id, { text: newText, editing: false });
+                            }
+                        });
+
+                        cancelBtn.addEventListener('click', () => {
+                            updateTodo(todo.id, { editing: false });
+                        });
+                    } else {
+                        todoItem.innerHTML = `
+                            <span class="todo-text flex-1 mr-4 ${todo.completed ? 'line-through text-gray-500' : ''}">${todo.text}</span>
+                            <div class="flex space-x-2">
+                                <button class="complete-btn px-3 py-1 ${todo.completed ? 'bg-gray-500' : 'bg-green-500'} text-white rounded hover:${todo.completed ? 'bg-gray-600' : 'bg-green-600'} transition-colors">
+                                    ${todo.completed ? 'Undo' : 'Complete'}
+                                </button>
+                                <button class="edit-btn px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors">Edit</button>
+                                <button class="delete-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors">Delete</button>
+                            </div>
+                        `;
+
+                        const completeBtn = todoItem.querySelector('.complete-btn');
+                        const editBtn = todoItem.querySelector('.edit-btn');
+                        const deleteBtn = todoItem.querySelector('.delete-btn');
+
+                        completeBtn.addEventListener('click', () => {
+                            updateTodo(todo.id, { completed: !todo.completed });
+                        });
+
+                        editBtn.addEventListener('click', () => {
+                            todos.forEach(t => {
+                                if (t.editing) {
+                                    t.editing = false;
+                                }
+                            });
+                            updateTodo(todo.id, { editing: true });
+                        });
+
+                        deleteBtn.addEventListener('click', () => {
+                            deleteTodo(todo.id);
+                        });
+                    }
+
+                    todoList.appendChild(todoItem);
+                });
+            }
+
+            function filterTodos(todos, filter) {
+                switch (filter) {
+                    case 'active':
+                        return todos.filter(todo => !todo.completed);
+                    case 'completed':
+                        return todos.filter(todo => todo.completed);
+                    default:
+                        return todos;
+                }
+            }
+
+            function addTodo(text) {
+                const newTodo = {
+                    id: Date.now().toString(),
+                    text: text,
+                    completed: false,
+                    editing: false
+                };
+
+                todos.unshift(newTodo);
+                saveTodos();
+                renderTodos();
+            }
+
+            function updateTodo(id, updates) {
+                todos = todos.map(todo => {
+                    if (todo.id === id) {
+                        return { ...todo, ...updates };
+                    }
+                    return todo;
+                });
+
+                saveTodos();
+                renderTodos();
+            }
+
+            function deleteTodo(id) {
+                todos = todos.filter(todo => todo.id !== id);
+                saveTodos();
+                renderTodos();
+            }
+
+            // Event Listeners
+            todoForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const text = todoInput.value.trim();
+
+                if (text) {
+                    addTodo(text);
+                    todoInput.value = '';
+                }
+            });
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    filterButtons.forEach(btn => {
+                        btn.dataset.active = "false";
+                    });
+                    button.dataset.active = "true";
+                    currentFilter = button.dataset.filter;
+                    renderTodos();
+                });
+            });
+
+            // Initial render
+            renderTodos();
+        });
+    </script>
+</body>
+
+</html>
