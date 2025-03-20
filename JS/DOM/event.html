@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body onload="checkCookies()">
+    <h1 onclick="changeText(this)">Click me</h1>
+    <button id="btn">The time is!</button>
+    <p id="show"></p>
+    <script>
+        function changeText(id) {
+            id.innerHTML = "Hello....!"
+        }
+        document.getElementById('btn').onclick = datetime()
+        function datetime() {
+            document.getElementById('show').innerHTML = Date();
+        }
+    </script>
+
+
+
+    <h1>JavaScript HTML Events</h1>
+    <h2>The onload Attribute</h2>
+
+    <p id="demo"></p>
+
+    <script>
+        function checkCookies() {
+            let text = "";
+            if (navigator.cookieEnabled == true) {
+                text = "Cookies are enabled.";
+            } else {
+                text = "Cookies are not enabled.";
+            }
+            document.getElementById("demo").innerHTML = text;
+        }
+    </script>
+
+
+
+    Email:
+    <input type="email" id="email" oninput="LowerCase()">
+    <script>
+        function LowerCase() {
+            let x = document.getElementById('email')
+            x.value = x.value.toLowerCase()
+        }
+    </script>
+
+    <div onmouseover="mouseOver(this)" onmouseout="mouseOut(this)"
+        style="background-color:#D94A38;width:120px;height:20px;padding:40px;">
+        Mouse Over Me
+    </div>
+    <button id="btn11">Click</button>
+    <div id="dateShow">
+
+    </div>
+    <script>
+        function mouseOver(obj){
+            obj.innerHTML = 'Thank you';
+            obj.style.backgroundColor = 'green'
+        }
+        function mouseOut(obj){
+            obj.innerHTML = 'Mouse Over Me'
+            obj.style.backgroundColor = '#D94A38'
+        }
+
+        document.getElementById('btn11').addEventListener('click', function(){
+            document.getElementById('dateShow').innerHTML += Date()
+        })
+    </script>
+</body>
+
+</html>
