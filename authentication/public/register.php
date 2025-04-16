@@ -54,7 +54,7 @@ require("../controller/registerController.php");
         <div class="flex justify-between items-center mt-4 text-sm">
             <a href="<?= BASE_URL; ?>public/login.php" class="text-purple-600 hover:underline">Back
                 to Sign In</a>
-            <a href="/forgot-password" class="text-purple-600 hover:underline">Forgot Password?</a>
+            <a href="<?= BASE_URL; ?>public/forgetPassword.php" class="text-purple-600 hover:underline">Forgot Password?</a>
         </div>
     </div>
 </body>
